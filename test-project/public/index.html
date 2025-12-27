@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Key-Value Message App</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>Key-Value Message App</h1>
+        <p>
+          Conversations are stored as key-value entries: a conversation ID maps to
+          a list of messages.
+        </p>
+      </header>
+
+      <section class="panel">
+        <div class="row">
+          <label>
+            Your name
+            <input id="user" type="text" placeholder="e.g. alice" />
+          </label>
+          <label>
+            Friend name
+            <input id="peer" type="text" placeholder="e.g. bob" />
+          </label>
+          <button id="load">Load chat</button>
+        </div>
+
+        <div class="thread" id="thread"></div>
+
+        <form id="send" class="row">
+          <input
+            id="message"
+            type="text"
+            placeholder="Write a message"
+            autocomplete="off"
+          />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Key-Value Store Snapshot</h2>
+        <pre id="kv"></pre>
+      </section>
+    </main>
+
+    <script src="/public/app.js"></script>
+  </body>
+</html>

@@ -1,5 +1,39 @@
 {
-  "session:1": {
-    "key": "value"
+  "alice|alice": {
+    "participants": [
+      "alice",
+      "alice"
+    ],
+    "messages": [
+      {
+        "id": "1766847037402-c91120792494e",
+        "from": "alice",
+        "to": "alice",
+        "text": "teste",
+        "ts": 1766847037403
+      },
+      {
+        "id": "1766847047754-a5083f079315a",
+        "from": "alice",
+        "to": "alice",
+        "text": "hi",
+        "ts": 1766847047755
+      }
+    ]
+  },
+  "john|john": {
+    "participants": [
+      "john",
+      "john"
+    ],
+    "messages": [
+      {
+        "id": "1766847065452-1a436bf6d13458",
+        "from": "john",
+        "to": "john",
+        "text": "teste",
+        "ts": 1766847065452
+      }
+    ]
   }
 }

@@ -73,3 +73,30 @@ Set `KV_BASE_URL` to point to a different service:
 cd keyvalue-test
 KV_BASE_URL=http://localhost:3000 bun run index.ts list
 ```
+
+## Test solution: message app (test-project)
+
+Location: `test-project/`
+
+### Setup
+
+Make sure the KV service is running on `http://localhost:3000`.
+Requires Bun to run the server.
+
+### Run
+
+```bash
+cd test-project
+PORT=3200 ./start.sh
+```
+
+Open `http://localhost:3200`.
+
+### Configuration
+
+Set `KV_BASE_URL` to point to a different service:
+
+```bash
+cd test-project
+KV_BASE_URL=http://localhost:3000 PORT=3200 ./start.sh
+```
