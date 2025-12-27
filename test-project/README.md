@@ -5,14 +5,15 @@ This is a tiny message app that stores conversations in a key-value store. The k
 ## Run
 
 ```bash
-node server.js
+./start.sh
 ```
 
-Then open `http://localhost:3000`.
+Then open `http://localhost:3100`.
+Requires Bun to run the server.
+The KV cluster must be running at `http://localhost:3000` (override with `KV_BASE_URL`).
 
 ## How the Key-Value Store Works
 
-- `conversationId -> { participants, messages[] }`
-- `user -> Set(conversationId)` index for listing threads
+- `conversationId -> { participants, messages[] }` stored in the KV cluster at `http://localhost:3000`
 
 You can view the current store snapshot in the UI.

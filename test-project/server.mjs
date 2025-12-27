@@ -1,33 +1,36 @@
-const http = require("http");
-const { URL } = require("url");
-const path = require("path");
-const fs = require("fs");
+import http from "http";
+import { URL, fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
+import { KVClient } from "../keyvalue-cluster/sdk/index.ts";
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3100;
+const KV_BASE_URL = process.env.KV_BASE_URL || "http://localhost:3000";
 
-// Key-value store: conversationId -> { participants: [a,b], messages: [...] }
-const conversations = new Map();
-// Key-value index: user -> Set(conversationId)
-const userIndex = new Map();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const client = new KVClient({ baseUrl: KV_BASE_URL });
 
 function conversationIdFor(a, b) {
   const pair = [a.trim(), b.trim()].sort();
   return `${pair[0]}|${pair[1]}`;
 }
 
-function ensureConversation(a, b) {
-  const id = conversationIdFor(a, b);
-  if (!conversations.has(id)) {
-    conversations.set(id, {
-      participants: [a, b],
-      messages: [],
-    });
+async function loadStore() {
+  const store = await client.getAll();
+  if (!store || typeof store !== "object") {
+    return {};
   }
-  if (!userIndex.has(a)) userIndex.set(a, new Set());
-  if (!userIndex.has(b)) userIndex.set(b, new Set());
-  userIndex.get(a).add(id);
-  userIndex.get(b).add(id);
-  return id;
+  return store;
+}
+
+function normalizeConversation(convo) {
+  if (!convo || typeof convo !== "object") {
+    return null;
+  }
+  const participants = Array.isArray(convo.participants) ? convo.participants : [];
+  const messages = Array.isArray(convo.messages) ? convo.messages : [];
+  return { participants, messages };
 }
 
 function collectRequestBody(req) {
@@ -96,12 +99,16 @@ const server = http.createServer(async (req, res) => {
       return json(res, 400, { ok: false, error: "Missing user or with" });
     }
     const id = conversationIdFor(user, withUser);
-    const convo = conversations.get(id);
-    return json(res, 200, {
-      ok: true,
-      conversationId: id,
-      messages: convo ? convo.messages : [],
-    });
+    try {
+      const convo = normalizeConversation(await client.get(id));
+      return json(res, 200, {
+        ok: true,
+        conversationId: id,
+        messages: convo ? convo.messages : [],
+      });
+    } catch (err) {
+      return json(res, 502, { ok: false, error: "KV store unavailable" });
+    }
   }
 
   if (req.method === "GET" && url.pathname === "/api/threads") {
@@ -109,32 +116,35 @@ const server = http.createServer(async (req, res) => {
     if (!user) {
       return json(res, 400, { ok: false, error: "Missing user" });
     }
-    const ids = Array.from(userIndex.get(user) || []);
-    const threads = ids
-      .map((id) => {
-        const convo = conversations.get(id);
-        const other = convo.participants.find((p) => p !== user) || user;
-        const last = convo.messages[convo.messages.length - 1] || null;
-        return {
-          with: other,
-          lastText: last ? last.text : "",
-          lastTs: last ? last.ts : 0,
-        };
-      })
-      .sort((a, b) => b.lastTs - a.lastTs);
+    try {
+      const store = await loadStore();
+      const threads = Object.values(store)
+        .map((raw) => normalizeConversation(raw))
+        .filter((convo) => convo && convo.participants.includes(user))
+        .map((convo) => {
+          const other = convo.participants.find((p) => p !== user) || user;
+          const last = convo.messages[convo.messages.length - 1] || null;
+          return {
+            with: other,
+            lastText: last ? last.text : "",
+            lastTs: last ? last.ts : 0,
+          };
+        })
+        .sort((a, b) => b.lastTs - a.lastTs);
 
-    return json(res, 200, { ok: true, threads });
+      return json(res, 200, { ok: true, threads });
+    } catch (err) {
+      return json(res, 502, { ok: false, error: "KV store unavailable" });
+    }
   }
 
   if (req.method === "GET" && url.pathname === "/api/store") {
-    const store = {};
-    for (const [id, convo] of conversations.entries()) {
-      store[id] = {
-        participants: convo.participants,
-        messages: convo.messages,
-      };
+    try {
+      const store = await loadStore();
+      return json(res, 200, { ok: true, store });
+    } catch (err) {
+      return json(res, 502, { ok: false, error: "KV store unavailable" });
     }
-    return json(res, 200, { ok: true, store });
   }
 
   if (req.method === "POST" && url.pathname === "/api/send") {
@@ -148,8 +158,12 @@ const server = http.createServer(async (req, res) => {
         return json(res, 400, { ok: false, error: "Missing from, to, or text" });
       }
 
-      const id = ensureConversation(from, to);
-      const convo = conversations.get(id);
+      const id = conversationIdFor(from, to);
+      const existing = normalizeConversation(await client.get(id));
+      const convo = existing || {
+        participants: [from, to],
+        messages: [],
+      };
       const message = {
         id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
         from,
@@ -158,10 +172,13 @@ const server = http.createServer(async (req, res) => {
         ts: Date.now(),
       };
       convo.messages.push(message);
+      await client.set(id, convo);
 
       return json(res, 200, { ok: true, conversationId: id, message });
     } catch (err) {
-      return json(res, 400, { ok: false, error: "Invalid JSON" });
+      const status = err instanceof SyntaxError ? 400 : 502;
+      const error = err instanceof SyntaxError ? "Invalid JSON" : "KV store unavailable";
+      return json(res, status, { ok: false, error });
     }
   }
 
