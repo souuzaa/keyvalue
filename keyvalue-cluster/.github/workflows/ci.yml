@@ -22,3 +22,15 @@ jobs:
 
       - name: Run tests (if present)
         run: bun run --if-present test
+
+      - name: Publish CI summary
+        if: always()
+        run: |
+          {
+            echo "## CI Report"
+            echo ""
+            echo "- Workflow: ${{ github.workflow }}"
+            echo "- Job: ${{ github.job }}"
+            echo "- Status: ${{ job.status }}"
+            echo "- Commit: ${{ github.sha }}"
+          } >> "$GITHUB_STEP_SUMMARY"
