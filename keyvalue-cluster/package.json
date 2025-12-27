@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "bun --watch server.ts",
     "start": "bun server.ts",
-    "redundancy": "bun redundancy/manager.ts"
+    "redundancy": "bun redundancy/manager.ts",
+    "test": "bun test"
   }
 }
