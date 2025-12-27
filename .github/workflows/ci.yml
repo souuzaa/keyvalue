@@ -19,9 +19,11 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+        working-directory: keyvalue-cluster
 
       - name: Run tests (if present)
         run: bun run --if-present test
+        working-directory: keyvalue-cluster
 
       - name: Publish CI summary
         if: always()
