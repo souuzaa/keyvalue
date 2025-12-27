@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bun KV Vault</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/public/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <p class="eyebrow">Bun.js KV Service</p>
+        <h1>KV Vault</h1>
+        <p class="subhead">
+          A tiny Redis-like store with REST + WebSocket updates, built for fast
+          local development.
+        </p>
+        <div class="status">
+          <span class="status-dot" id="ws-indicator"></span>
+          <span id="ws-label">Connecting...</span>
+        </div>
+        <a class="ghost-link" href="/cluster">View cluster status</a>
+      </header>
+
+      <section class="stats" aria-label="KV insights">
+        <div class="stat-card">
+          <span class="stat-label">Total keys</span>
+          <strong id="stat-total-keys">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Visible keys</span>
+          <strong id="stat-visible-keys">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total value size</span>
+          <strong id="stat-total-size">0 B</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Average value size</span>
+          <strong id="stat-avg-size">0 B</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Largest value</span>
+          <strong id="stat-largest">—</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Last update</span>
+          <strong id="stat-updated">—</strong>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="timeline-title">
+        <div class="card-header">
+          <div>
+            <h2 id="timeline-title">Keys over time</h2>
+            <p>Live snapshot of total keys since you opened this page.</p>
+          </div>
+        </div>
+        <div class="chart">
+          <svg viewBox="0 0 640 180" role="img" aria-label="Keys stored over time">
+            <path id="timeline-area" d="" />
+            <path id="timeline-line" d="" />
+          </svg>
+          <div class="chart-axis">
+            <span>Session start</span>
+            <span>Now</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="editor-title">
+        <div class="card-header">
+          <h2 id="editor-title">Write a key</h2>
+          <p>Store JSON values. Objects, arrays, and strings are all supported.</p>
+        </div>
+        <form id="kv-form" class="editor">
+          <label>
+            Key
+            <input type="text" name="key" placeholder="session:alpha" required />
+          </label>
+          <label>
+            Value (JSON)
+            <textarea name="value" rows="5" placeholder='{"role":"demo"}'></textarea>
+          </label>
+          <div class="actions">
+            <button type="submit">Save</button>
+            <button type="button" class="ghost" id="delete-btn">Delete</button>
+          </div>
+        </form>
+        <p class="hint" id="editor-hint">Try selecting a key from the list.</p>
+      </section>
+
+      <section class="card" aria-labelledby="list-title">
+        <div class="card-header">
+          <h2 id="list-title">Stored keys</h2>
+          <div class="tools">
+            <input type="search" id="filter" placeholder="Filter keys" />
+            <button type="button" class="ghost" id="refresh-btn">Refresh</button>
+          </div>
+        </div>
+        <ul id="kv-list" class="kv-list"></ul>
+        <p class="hint" id="empty-state">No keys yet. Add one to get started.</p>
+      </section>
+    </div>
+
+    <template id="row-template">
+      <li class="kv-row">
+        <div>
+          <strong class="kv-key"></strong>
+          <div class="kv-value"></div>
+        </div>
+        <button type="button" class="ghost">Load</button>
+      </li>
+    </template>
+
+    <script src="/public/app.js"></script>
+  </body>
+</html>

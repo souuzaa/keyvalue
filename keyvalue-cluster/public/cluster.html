@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KV Cluster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/public/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="cluster-header">
+        <div>
+          <p class="eyebrow">Redundancy Manager</p>
+          <h1>Cluster Overview</h1>
+          <p class="subhead">
+            Live health checks across each KV replica running behind the
+            manager.
+          </p>
+        </div>
+        <div class="cluster-actions">
+          <a class="ghost-link" href="/">Back to KV Vault</a>
+          <button type="button" id="refresh-cluster">Refresh</button>
+        </div>
+      </header>
+
+      <section class="stats" aria-label="Cluster summary">
+        <div class="stat-card">
+          <span class="stat-label">Healthy replicas</span>
+          <strong id="cluster-healthy">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total keys</span>
+          <strong id="cluster-keys">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total value size</span>
+          <strong id="cluster-size">0 B</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Average latency</span>
+          <strong id="cluster-latency">0 ms</strong>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="replica-title">
+        <div class="card-header">
+          <h2 id="replica-title">Replica status</h2>
+          <p>Each replica stores its own data directory.</p>
+        </div>
+        <div id="replica-grid" class="replica-grid"></div>
+      </section>
+    </div>
+
+    <template id="replica-template">
+      <div class="replica-card">
+        <div class="replica-header">
+          <div>
+            <span class="replica-label"></span>
+            <h3 class="replica-title"></h3>
+          </div>
+          <span class="replica-pill"></span>
+        </div>
+        <div class="replica-stats">
+          <div>
+            <span>Keys</span>
+            <strong class="replica-keys"></strong>
+          </div>
+          <div>
+            <span>Value size</span>
+            <strong class="replica-size"></strong>
+          </div>
+          <div>
+            <span>Avg value</span>
+            <strong class="replica-avg"></strong>
+          </div>
+          <div>
+            <span>Largest key</span>
+            <strong class="replica-largest"></strong>
+          </div>
+          <div>
+            <span>Latency</span>
+            <strong class="replica-latency"></strong>
+          </div>
+          <div>
+            <span>Last update</span>
+            <strong class="replica-updated"></strong>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <script src="/public/cluster.js"></script>
+  </body>
+</html>

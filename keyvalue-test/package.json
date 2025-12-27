@@ -1,0 +1,10 @@
+{
+  "name": "sample-project-console",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.ts",
+    "perf": "k6 run perf/k6-kv.js"
+  }
+}
