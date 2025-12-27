@@ -1,0 +1,15 @@
+{
+  "name": "keyvalue-message-app",
+  "version": "1.0.0",
+  "description": "Key-Value Message App for testing conversations",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "keywords": ["keyvalue", "messaging", "chat"],
+  "author": "",
+  "license": "ISC"
+}
